@@ -15,7 +15,11 @@ todoForm.addEventListener("submit", function (e) {
 function addTask() {
   const inputText = todoInput.value.trim();
   if (inputText.length > 0) {
-    todoArray.push(inputText);
+    const todoObject = {
+      text: inputText,
+      completed: false,
+    };
+    todoArray.push(todoObject);
     updateTodoList();
     saveToLocalStorage();
     todoInput.value = "";
@@ -34,11 +38,13 @@ function updateTodoList() {
 function createList(displaytext, index) {
   const todoId = "todo-" + index;
   const todoLi = document.createElement("li"); //creates new list
-  todoLi.className = "todo";
+  const todoText = displaytext.text;
+
+  todoLi.className = "todo"; //assign class name to access css properties
   todoLi.innerHTML = `
     <input type="checkbox" name="" id="${todoId}" />
     <label class="custom-checkbox" for="${todoId}"><i class="fa-solid fa-check"></i></label>
-    <label class="todo-text" for="${todoId}">${displaytext}</label>
+    <label class="todo-text" for="${todoId}">${todoText}</label>
     <button class="delete-Button"  >
       <i class="fa-solid fa-trash" style="color: #00ffc4"></i>
     </button>
@@ -47,6 +53,15 @@ function createList(displaytext, index) {
   deleteButtton.addEventListener("click", () => {
     deleteTodoItem(index);
   });
+
+  const checkbox = todoLi.querySelector("input");
+
+  checkbox.addEventListener("change", () => {
+    todoArray[index].completed = checkbox.checked;
+    saveToLocalStorage();
+  });
+  checkbox.checked = displaytext.completed;
+
   return todoLi;
 }
 
@@ -64,5 +79,5 @@ function saveToLocalStorage() {
 
 function getTodos() {
   const todos = localStorage.getItem("todos");
-  return JSON.parse(todos);
+  return todos ? JSON.parse(todos) : [];
 }
